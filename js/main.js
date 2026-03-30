@@ -482,13 +482,15 @@ async function sendMessage(content) {
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6);
-        if (data === '[DONE]') continue;
+        const data = trimmed.slice(6).trim();
+        if (!data || data === '[DONE]') continue;
 
         try {
           const event = JSON.parse(data);
-          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-            fullText += event.delta.text;
+          // Gemini format: candidates[0].content.parts[0].text
+          const chunk = event?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (chunk) {
+            fullText += chunk;
             renderMarkdown(contentEl, fullText);
             scrollToBottom();
           }

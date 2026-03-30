@@ -1,9 +1,9 @@
 export const config = { runtime: 'edge' };
 
 const SYSTEM_PROMPTS = {
-  friendly: 'You are NoorAI, a friendly and helpful AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be warm, conversational, and supportive. Use emojis occasionally. Format code in markdown code blocks.',
+  friendly:     'You are NoorAI, a friendly and helpful AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be warm, conversational, and supportive. Use emojis occasionally. Format code in markdown code blocks.',
   professional: 'You are NoorAI, a professional AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be formal, precise, and structured. Use proper formatting and markdown. Format code in markdown code blocks.',
-  concise: 'You are NoorAI, an AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be extremely brief and direct. Give the shortest possible helpful answer. Format code in markdown code blocks.',
+  concise:      'You are NoorAI, an AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be extremely brief and direct. Give the shortest possible helpful answer. Format code in markdown code blocks.',
 };
 
 export default async function handler(req) {
@@ -22,67 +22,66 @@ export default async function handler(req) {
   }
 
   let body;
-  try {
-    body = await req.json();
-  } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
-  }
+  try { body = await req.json(); }
+  catch { return new Response(JSON.stringify({ error: 'Invalid request' }), { status: 400 }); }
 
   const { messages, apiKey, personality = 'friendly' } = body;
-
-  const key = apiKey || process.env.ANTHROPIC_API_KEY;
+  const key = apiKey || process.env.GEMINI_API_KEY;
 
   if (!key) {
     return new Response(
-      JSON.stringify({ error: 'API key not found. Please add your Anthropic API key in Settings.' }),
+      JSON.stringify({ error: 'API key not set. Add your Google Gemini API key in Settings.' }),
       { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+  if (!messages || !messages.length) {
     return new Response(JSON.stringify({ error: 'No messages provided' }), { status: 400 });
   }
 
+  // Convert to Gemini format (role: "user" | "model")
+  const contents = messages.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+
   const systemPrompt = SYSTEM_PROMPTS[personality] || SYSTEM_PROMPTS.friendly;
 
-  let anthropicRes;
+  let geminiRes;
   try {
-    anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages,
-        stream: true,
-      }),
-    });
+    geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.9 },
+        }),
+      }
+    );
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: 'Failed to reach Anthropic API: ' + err.message }),
+      JSON.stringify({ error: 'Failed to reach Gemini API: ' + err.message }),
       { status: 502, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  if (!anthropicRes.ok) {
-    const errText = await anthropicRes.text();
-    let errMsg = 'Anthropic API error';
+  if (!geminiRes.ok) {
+    const errText = await geminiRes.text();
+    let errMsg = 'Gemini API error';
     try {
       const parsed = JSON.parse(errText);
       errMsg = parsed?.error?.message || errMsg;
     } catch {}
     return new Response(
       JSON.stringify({ error: errMsg }),
-      { status: anthropicRes.status, headers: { 'Content-Type': 'application/json' } }
+      { status: geminiRes.status, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  return new Response(anthropicRes.body, {
+  return new Response(geminiRes.body, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
