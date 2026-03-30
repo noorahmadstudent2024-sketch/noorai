@@ -270,21 +270,20 @@ function deleteChat(id, e) {
 }
 
 document.getElementById('new-chat-btn').addEventListener('click', () => {
-  const chat = createChat();
-  currentChatId = chat.id;
-  renderChatHistory();
   showWelcome();
-  document.getElementById('chat-title-display').textContent = 'New Chat';
   document.getElementById('chat-input').focus();
 });
 
 function showWelcome() {
+  currentChatId = null;
   const messagesEl = document.getElementById('messages');
   const welcome = document.getElementById('welcome');
   messagesEl.innerHTML = '';
   messagesEl.appendChild(welcome);
   welcome.style.display = 'flex';
   document.getElementById('chat-title-display').textContent = 'New Chat';
+  // deselect sidebar items
+  document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 }
 
 /* ══════════════════════════════════════════════════
@@ -633,12 +632,8 @@ function toast(msg, type = 'success') {
 renderChatHistory();
 updateStats();
 
-// Load most recent chat or show welcome
-if (chats.length > 0) {
-  loadChat(chats[0].id);
-} else {
-  showWelcome();
-}
+// Always show welcome on load
+showWelcome();
 
 // Focus input
 setTimeout(() => chatInput.focus(), 100);
