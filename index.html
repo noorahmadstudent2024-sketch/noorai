@@ -88,12 +88,8 @@
       </div>
     </header>
 
-    <!-- API Key Banner (shown when key missing) -->
-    <div class="api-banner" id="api-banner" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-      <span>Add your Anthropic API key in <strong>Settings</strong> to start chatting</span>
-      <button class="api-banner-btn" id="api-banner-btn">Open Settings →</button>
-    </div>
+    <!-- API Key Banner (hidden - key is server-side) -->
+    <div class="api-banner" id="api-banner" style="display:none"></div>
 
     <!-- Messages -->
     <div class="messages" id="messages">
@@ -176,14 +172,11 @@
       </div>
       <div class="panel-body">
 
-        <div class="setting-group">
-          <label class="setting-label">🔑 Google Gemini API Key</label>
-          <div class="api-key-input-wrap">
-            <input type="password" id="api-key-input" class="setting-input" placeholder="AIzaSy..." />
-            <button class="setting-toggle-vis" id="toggle-key-vis">👁</button>
-          </div>
-          <p class="setting-hint">Get your free key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></p>
-          <button class="setting-save-btn" id="save-api-key">Save Key</button>
+        <div class="setting-group" style="display:none">
+          <input type="hidden" id="api-key-input" />
+          <button style="display:none" id="toggle-key-vis"></button>
+          <button style="display:none" id="save-api-key"></button>
+          <button style="display:none" id="api-banner-btn"></button>
         </div>
 
         <div class="setting-group">

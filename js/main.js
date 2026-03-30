@@ -442,86 +442,22 @@ async function sendMessage(content) {
       .filter(m => m.role === 'user' || m.role === 'assistant')
       .map(m => ({ role: m.role, content: m.content }));
 
-    const systemPrompts = {
-      friendly: 'You are NoorAI, a friendly and helpful AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be warm, conversational, and supportive. Use emojis occasionally. Format code in markdown code blocks.',
-      professional: 'You are NoorAI, a professional AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be formal, precise, and structured. Use proper formatting and markdown. Format code in markdown code blocks.',
-      concise: 'You are NoorAI, an AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be extremely brief and direct. Give the shortest helpful answer. Format code in markdown code blocks.',
-    };
     const personality = getPersonality() || 'friendly';
-    const systemPrompt = systemPrompts[personality] || systemPrompts.friendly;
-
-    const apiKey = getApiKey();
-    if (!apiKey) throw new Error('API key is missing! Please set it in Settings.');
-
-    const geminiContents = conversation.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
-
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: geminiContents,
-        generationConfig: { maxOutputTokens: 1000, temperature: 0.9 },
-      }),
-    });
-
-    if (!res.ok) {
-      let errMsg = 'API error';
-      try {
-        const j = await res.json();
-        errMsg = j.error?.message || j.error || errMsg;
-        if (typeof errMsg === 'object') errMsg = JSON.stringify(errMsg);
-      } catch {}
-      throw new Error(errMsg);
-    }
-
-    // Stream reading
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let lastRender = 0;
 
     // Clear typing indicator
     contentEl.innerHTML = '';
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversation, personality }),
+    });
 
-      buffer += decoder.decode(value, { stream: true });
+    const data = await res.json();
 
-      // Process complete SSE lines
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || ''; // keep incomplete line
+    if (!res.ok) throw new Error(data.error || 'Server error');
 
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6).trim();
-        if (!data || data === '[DONE]') continue;
-
-        try {
-          const event = JSON.parse(data);
-          // Gemini format: candidates[0].content.parts[0].text
-          const chunk = event?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (chunk) {
-            fullText += chunk;
-            const now = Date.now();
-            if (now - lastRender > 50) { // Limit DOM updates to 20 FPS
-              renderMarkdown(contentEl, fullText);
-              scrollToBottom();
-              lastRender = now;
-            }
-          }
-        } catch {}
-      }
-    }
-
-    // Final render
-    if (!fullText) fullText = '(No response)';
+    fullText = data.text || '(No response)';
     renderMarkdown(contentEl, fullText);
 
     // Save assistant message
