@@ -487,12 +487,61 @@ function setInputDisabled(v) {
   sendBtn.disabled = v;
 }
 
-// Auto-resize textarea
+// Auto-resize textarea + character counter
+const charCounter = document.getElementById('char-counter');
+const MAX_CHARS = 4000;
+
 chatInput.addEventListener('input', () => {
   sendBtn.disabled = !chatInput.value.trim() || isStreaming;
   chatInput.style.height = 'auto';
   chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + 'px';
+
+  const len = chatInput.value.length;
+  if (charCounter) {
+    charCounter.textContent = len > 0 ? `${len}/${MAX_CHARS}` : '0';
+    charCounter.className = 'char-counter' +
+      (len >= MAX_CHARS ? ' limit' : len >= MAX_CHARS * 0.8 ? ' warn' : '');
+  }
 });
+
+// Voice input
+const voiceBtn = document.getElementById('voice-btn');
+let recognition = null;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    chatInput.value = chatInput.value + (chatInput.value ? ' ' : '') + text;
+    chatInput.dispatchEvent(new Event('input'));
+    chatInput.focus();
+  };
+
+  recognition.onend = () => {
+    voiceBtn.classList.remove('active');
+  };
+
+  recognition.onerror = () => {
+    voiceBtn.classList.remove('active');
+    toast('🎤 Mic error. Check browser permissions.', 'error');
+  };
+
+  voiceBtn.addEventListener('click', () => {
+    if (voiceBtn.classList.contains('active')) {
+      recognition.stop();
+    } else {
+      voiceBtn.classList.add('active');
+      recognition.start();
+    }
+  });
+} else {
+  if (voiceBtn) voiceBtn.style.display = 'none';
+}
 
 // Enter to send, Shift+Enter for newline
 chatInput.addEventListener('keydown', e => {

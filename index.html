@@ -6,7 +6,7 @@
   <title>NoorAI — Personal AI Assistant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -21,9 +21,7 @@
 
     <div class="sidebar-top">
       <div class="brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="brand-logo">N</div>
         <span class="brand-name">NoorAI</span>
       </div>
       <button class="sidebar-close" id="sidebar-close">
@@ -69,7 +67,7 @@
         </button>
         <div class="model-badge">
           <div class="model-dot"></div>
-          gemini-flash-latest
+          gemini-2.5-flash
         </div>
       </div>
       <div class="header-center">
@@ -96,11 +94,9 @@
 
       <!-- Welcome Screen -->
       <div class="welcome" id="welcome">
-        <div class="welcome-logo">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="welcome-logo">N</div>
         <h1 class="welcome-title">NoorAI</h1>
-        <p class="welcome-sub">Your personal AI assistant — powered by Claude</p>
+        <p class="welcome-sub">Your premium personal AI assistant — powered by Google Gemini</p>
         <div class="quick-prompts" id="quick-prompts">
           <button class="qp-chip" data-prompt="Explain this code and how it works: ">👨‍💻 Explain Code</button>
           <button class="qp-chip" data-prompt="Write a professional cover letter for a Frontend Developer position at ">✉️ Cover Letter</button>
@@ -122,11 +118,17 @@
           rows="1"
           autocomplete="off"
         ></textarea>
+        <button class="voice-btn" id="voice-btn" title="Voice input">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
         <button class="send-btn" id="send-btn" disabled>
           <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <p class="input-disclaimer">NoorAI can make mistakes. Powered by Google Gemini Flash Latest.</p>
+      <div class="input-footer">
+        <p class="input-disclaimer">NoorAI can make mistakes. Powered by Gemini 2.5 Flash.</p>
+        <span class="char-counter" id="char-counter">0</span>
+      </div>
     </div>
 
   </main>
