@@ -446,7 +446,7 @@ async function sendMessage(content) {
     // Clear typing indicator
     contentEl.innerHTML = '';
 
-    // Auto-retry on rate limit (429) with countdown
+    // Auto-retry on rate limit (429) silently
     let data, res;
     for (let attempt = 0; attempt < 3; attempt++) {
       res = await fetch('/api/chat', {
@@ -457,12 +457,8 @@ async function sendMessage(content) {
       data = await res.json();
 
       if (res.status === 429) {
-        // Rate limited — show countdown and retry
-        for (let s = 60; s > 0; s--) {
-          contentEl.innerHTML = `<div class="msg-error" style="background:rgba(240,165,0,0.08);border-color:rgba(240,165,0,0.3);color:var(--gold)">⏳ Rate limit reached. Retrying in ${s}s…</div>`;
-          await new Promise(r => setTimeout(r, 1000));
-        }
         contentEl.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+        await new Promise(r => setTimeout(r, 62000));
         continue;
       }
       break;
