@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-accent="blue" data-font-size="medium">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoorAI — Personal AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="brand-name">NoorAI</span>
+      </div>
+      <button class="sidebar-close" id="sidebar-close">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <button class="new-chat-btn" id="new-chat-btn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      New Chat
+    </button>
+
+    <div class="chat-history-label">Recent</div>
+    <div class="chat-history" id="chat-history"></div>
+
+    <div class="sidebar-footer">
+      <button class="sf-btn" id="btn-stats">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Stats</span>
+      </button>
+      <button class="sf-btn" id="btn-settings">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span>Settings</span>
+      </button>
+      <button class="sf-btn" id="btn-about">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20C4 17.7909 5.79086 16 8 16H16C18.2091 16 20 17.7909 20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>About</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════════
+       MAIN CHAT AREA
+  ══════════════════════════════════ -->
+  <main class="chat-area">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-left">
+        <button class="icon-btn" id="menu-btn">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="model-badge">
+          <div class="model-dot"></div>
+          claude-sonnet-4-6
+        </div>
+      </div>
+      <div class="header-center">
+        <span class="chat-title-display" id="chat-title-display">New Chat</span>
+      </div>
+      <div class="header-right">
+        <div class="accent-pills">
+          <button class="accent-pill blue active" data-accent="blue" title="Blue"></button>
+          <button class="accent-pill purple" data-accent="purple" title="Purple"></button>
+          <button class="accent-pill green" data-accent="green" title="Green"></button>
+        </div>
+        <button class="icon-btn" id="theme-btn" title="Toggle theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2V4M12 20V22M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M2 12H4M20 12H22M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- API Key Banner (shown when key missing) -->
+    <div class="api-banner" id="api-banner" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Add your Anthropic API key in <strong>Settings</strong> to start chatting</span>
+      <button class="api-banner-btn" id="api-banner-btn">Open Settings →</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages">
+
+      <!-- Welcome Screen -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <h1 class="welcome-title">NoorAI</h1>
+        <p class="welcome-sub">Your personal AI assistant — powered by Claude</p>
+        <div class="quick-prompts" id="quick-prompts">
+          <button class="qp-chip" data-prompt="Explain this code and how it works: ">👨‍💻 Explain Code</button>
+          <button class="qp-chip" data-prompt="Write a professional cover letter for a Frontend Developer position at ">✉️ Cover Letter</button>
+          <button class="qp-chip" data-prompt="Debug this JavaScript code and explain the issue: ">🐛 Debug JS</button>
+          <button class="qp-chip" data-prompt="Review my resume and give me feedback on how to improve it: ">📄 Resume Review</button>
+          <button class="qp-chip" data-prompt="Give me 5 unique frontend project ideas for a portfolio that will impress recruiters">💡 Project Ideas</button>
+          <button class="qp-chip" data-prompt="What are the best resources to learn ">📚 Learning Resources</button>
+        </div>
+      </div>
+
+    </div><!-- /messages -->
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <div class="input-box">
+        <textarea
+          id="chat-input"
+          placeholder="Message NoorAI…  (Enter ↵ to send, Shift+Enter for new line)"
+          rows="1"
+          autocomplete="off"
+        ></textarea>
+        <button class="send-btn" id="send-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="input-disclaimer">NoorAI can make mistakes. Powered by Claude claude-sonnet-4-6.</p>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════
+       PANELS (Stats / Settings / About)
+  ══════════════════════════════════ -->
+  <div class="panel-overlay" id="panel-overlay">
+
+    <!-- STATS PANEL -->
+    <div class="panel" id="panel-stats">
+      <div class="panel-hdr">
+        <h3>📊 Stats</h3>
+        <button class="panel-close">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="stat-val" id="stat-messages">0</div>
+            <div class="stat-lbl">Messages Sent</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-chats">0</div>
+            <div class="stat-lbl">Total Chats</div>
+          </div>
+        </div>
+        <div class="stat-box wide">
+          <div class="stat-val" id="stat-topic">—</div>
+          <div class="stat-lbl">Most Used Topic</div>
+        </div>
+        <div class="stat-box wide">
+          <div class="stat-val" id="stat-words">0</div>
+          <div class="stat-lbl">Total Words Generated</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="panel-hdr">
+        <h3>⚙️ Settings</h3>
+        <button class="panel-close">✕</button>
+      </div>
+      <div class="panel-body">
+
+        <div class="setting-group">
+          <label class="setting-label">🔑 Anthropic API Key</label>
+          <div class="api-key-input-wrap">
+            <input type="password" id="api-key-input" class="setting-input" placeholder="sk-ant-..." />
+            <button class="setting-toggle-vis" id="toggle-key-vis">👁</button>
+          </div>
+          <p class="setting-hint">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+          <button class="setting-save-btn" id="save-api-key">Save Key</button>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">🧠 AI Personality</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="personality" value="friendly" checked />
+              <span>😊 Friendly</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="personality" value="professional" />
+              <span>💼 Professional</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="personality" value="concise" />
+              <span>⚡ Concise</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">🔠 Font Size</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="font-size" value="small" />
+              <span>Small</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="font-size" value="medium" checked />
+              <span>Medium</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="font-size" value="large" />
+              <span>Large</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group danger-zone">
+          <label class="setting-label">⚠️ Danger Zone</label>
+          <button class="danger-btn" id="clear-history-btn">🗑 Clear All Chat History</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ABOUT PANEL -->
+    <div class="panel" id="panel-about">
+      <div class="panel-hdr">
+        <h3>🌐 About NoorAI</h3>
+        <button class="panel-close">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="about-avatar">N</div>
+        <div class="about-info">
+          <h2 class="about-name">Noor Ahmad</h2>
+          <p class="about-title">Frontend Web Developer</p>
+          <p class="about-loc">📍 Karachi, Pakistan</p>
+        </div>
+        <p class="about-desc">
+          NoorAI is a personal AI chat assistant built from scratch using pure HTML, CSS & Vanilla JavaScript — no frameworks. Powered by Anthropic's Claude API.
+        </p>
+        <div class="about-links">
+          <a href="https://github.com/noorahmadstudent2024-sketch" target="_blank" class="about-link github">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.475 2 2 6.475 2 12c0 4.425 2.8625 8.1625 6.8375 9.4875.5.0875.6875-.2125.6875-.475 0-.2375-.0125-1.025-.0125-1.8625C7 19.6125 6.35 18.5375 6.15 17.975c-.1125-.2875-.6-1.175-1.025-1.4125-.35-.1875-.85-.65-.0125-.6625.7875-.0125 1.35.725 1.5375 1.025.9 1.5125 2.3375 1.0875 2.9125.825.0875-.65.35-1.0875.6375-1.3375-2.225-.25-4.55-1.1125-4.55-4.9375 0-1.0875.3875-1.9875.025-2.6875-.325-.825-.0875-1.7375.225-2.4125 0 0 .8375-.2625 2.75 1.025.7875-.225 1.625-.3375 2.4625-.3375.8375 0 1.675.1125 2.4625.3375 1.9125-1.3 2.75-1.025 2.75-1.025.3125.6875.55 1.5875.225 2.4125.3875.7 .025 1.5875.025 2.6875 0 3.8375-2.3375 4.6875-4.5625 4.9375.3625.3125.675.9125.675 1.85 0 1.3375-.0125 2.4125-.0125 2.75 0 .2625.1875.575.6875.475C19.1375 20.1625 22 16.425 22 12c0-5.525-4.475-10-10-10z"/></svg>
+            GitHub
+          </a>
+          <a href="https://linkedin.com/in/noorahmadstudent" target="_blank" class="about-link linkedin">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+        <div class="about-stack">
+          <p class="about-stack-title">Tech Stack</p>
+          <div class="about-tags">
+            <span class="about-tag">HTML5</span>
+            <span class="about-tag">CSS3</span>
+            <span class="about-tag">Vanilla JS</span>
+            <span class="about-tag">Claude API</span>
+            <span class="about-tag">Marked.js</span>
+            <span class="about-tag">Prism.js</span>
+            <span class="about-tag">Vercel</span>
+          </div>
+        </div>
+        <p class="about-version">NoorAI v1.0 — Built with ❤️ from Karachi, Pakistan 🇵🇰</p>
+      </div>
+    </div>
+
+  </div><!-- /panel-overlay -->
+
+</div><!-- /app -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
