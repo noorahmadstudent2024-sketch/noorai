@@ -442,13 +442,29 @@ async function sendMessage(content) {
       .filter(m => m.role === 'user' || m.role === 'assistant')
       .map(m => ({ role: m.role, content: m.content }));
 
-    const res = await fetch('/api/chat', {
+    const systemPrompts = {
+      friendly: 'You are NoorAI, a friendly and helpful AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be warm, conversational, and supportive. Use emojis occasionally. Format code in markdown code blocks.',
+      professional: 'You are NoorAI, a professional AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be formal, precise, and structured. Use proper formatting and markdown. Format code in markdown code blocks.',
+      concise: 'You are NoorAI, an AI assistant created by Noor Ahmad, a Frontend Developer from Karachi, Pakistan. Be extremely brief and direct. Give the shortest helpful answer. Format code in markdown code blocks.',
+    };
+    const personality = getPersonality() || 'friendly';
+    const systemPrompt = systemPrompts[personality] || systemPrompts.friendly;
+
+    const apiKey = getApiKey();
+    if (!apiKey) throw new Error('API key is missing! Please set it in Settings.');
+
+    const geminiContents = conversation.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:streamGenerateContent?alt=sse&key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: conversation,
-        apiKey: getApiKey(),
-        personality: getPersonality(),
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: geminiContents,
+        generationConfig: { maxOutputTokens: 1000, temperature: 0.9 },
       }),
     });
 
@@ -456,7 +472,8 @@ async function sendMessage(content) {
       let errMsg = 'API error';
       try {
         const j = await res.json();
-        errMsg = j.error || errMsg;
+        errMsg = j.error?.message || j.error || errMsg;
+        if (typeof errMsg === 'object') errMsg = JSON.stringify(errMsg);
       } catch {}
       throw new Error(errMsg);
     }
@@ -465,6 +482,7 @@ async function sendMessage(content) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let lastRender = 0;
 
     // Clear typing indicator
     contentEl.innerHTML = '';
@@ -491,8 +509,12 @@ async function sendMessage(content) {
           const chunk = event?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (chunk) {
             fullText += chunk;
-            renderMarkdown(contentEl, fullText);
-            scrollToBottom();
+            const now = Date.now();
+            if (now - lastRender > 50) { // Limit DOM updates to 20 FPS
+              renderMarkdown(contentEl, fullText);
+              scrollToBottom();
+              lastRender = now;
+            }
           }
         } catch {}
       }
