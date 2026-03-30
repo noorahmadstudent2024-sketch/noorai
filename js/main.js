@@ -446,13 +446,27 @@ async function sendMessage(content) {
     // Clear typing indicator
     contentEl.innerHTML = '';
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: conversation, personality }),
-    });
+    // Auto-retry on rate limit (429) with countdown
+    let data, res;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation, personality }),
+      });
+      data = await res.json();
 
-    const data = await res.json();
+      if (res.status === 429) {
+        // Rate limited — show countdown and retry
+        for (let s = 60; s > 0; s--) {
+          contentEl.innerHTML = `<div class="msg-error" style="background:rgba(240,165,0,0.08);border-color:rgba(240,165,0,0.3);color:var(--gold)">⏳ Rate limit reached. Retrying in ${s}s…</div>`;
+          await new Promise(r => setTimeout(r, 1000));
+        }
+        contentEl.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+        continue;
+      }
+      break;
+    }
 
     if (!res.ok) throw new Error(data.error || 'Server error');
 
